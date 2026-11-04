@@ -1,0 +1,1 @@
+window.SpeakerUi = window.SpeakerUi || {};

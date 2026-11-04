@@ -1,0 +1,5 @@
+#!/bin/sh
+set -eu
+
+speaker_root=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+exec "$speaker_root/backend/venv/bin/python" "$speaker_root/backend/scripts/speaker_cli.py" "$@"

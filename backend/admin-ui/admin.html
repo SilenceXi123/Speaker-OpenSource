@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Speaker 管理控制台</title>
+    <link rel="stylesheet" href="/admin-assets/admin.css?v=20260901-identity-review" />
+  </head>
+  <body>
+    <main class="admin-shell">
+      <header class="admin-masthead">
+        <div class="brand-lockup">
+          <span class="brand-mark" aria-hidden="true">S</span>
+          <div>
+            <p class="eyebrow">Speaker / Control Room</p>
+            <h1>管理控制台</h1>
+          </div>
+        </div>
+        <div class="masthead-copy">
+          <strong>成本、知识与系统状态，一处掌握</strong>
+          <span>真实 Token 可追溯，节目知识可审核，生产环境可维护。</span>
+        </div>
+        <button id="logout-button" class="ghost-button hidden" type="button">退出</button>
+      </header>
+
+      <section id="login-section" class="login-stage">
+        <section class="admin-card login-card">
+          <div class="section-head">
+            <div>
+              <p class="section-kicker">SECURE ACCESS</p>
+              <h2>管理员登录</h2>
+            </div>
+            <span>登录后可查看项目 Token、调用成本和运维信息。</span>
+          </div>
+          <form id="login-form" class="stack-form">
+            <label class="field">
+              <span>账号</span>
+              <input id="login-username" name="username" type="text" autocomplete="username" required />
+            </label>
+            <label class="field">
+              <span>密码</span>
+              <input id="login-password" name="password" type="password" autocomplete="current-password" required />
+            </label>
+            <button id="login-submit" type="submit">进入控制台</button>
+          </form>
+          <p id="login-message" class="status-text" role="status"></p>
+        </section>
+      </section>
+
+      <section id="dashboard-section" class="dashboard hidden">
+        <aside class="control-rail" aria-label="管理员工作区">
+          <div class="rail-label">工作区</div>
+          <nav class="view-nav">
+            <button class="nav-button active" type="button" data-admin-view="ledger">
+              <span class="nav-index">01</span>
+              <span>AI 用量总览<small>Token 与识别时长</small></span>
+            </button>
+            <button class="nav-button" type="button" data-admin-view="catalog">
+              <span class="nav-index">02</span>
+              <span>价格目录<small>官方价格版本</small></span>
+            </button>
+            <button class="nav-button" type="button" data-admin-view="knowledge">
+              <span class="nav-index">03</span>
+              <span>知识库<small>古诗词与审核</small></span>
+            </button>
+            <button class="nav-button" type="button" data-admin-view="operations">
+              <span class="nav-index">04</span>
+              <span>系统维护<small>更新与存储</small></span>
+            </button>
+          </nav>
+          <p id="session-indicator" class="rail-session"></p>
+        </aside>
+
+        <div class="workspace">
+          <section class="workspace-toolbar">
+            <div>
+              <p class="section-kicker">REPORTING WINDOW</p>
+              <strong id="active-view-title">AI 用量总览</strong>
+            </div>
+            <div class="toolbar-actions">
+              <label id="month-field" class="field compact-field">
+                <span>统计日期</span>
+                <input id="month-input" type="date" />
+              </label>
+              <button id="refresh-summary-button" type="button">刷新数据</button>
+            </div>
+          </section>
+
+          <section class="workspace-view" data-view-panel="ledger">
+            <section class="admin-card ledger-hero">
+              <div class="section-head">
+                <div>
+                  <p class="section-kicker">PROVIDER USAGE FACTS</p>
+                  <h2>今日项目 AI 用量</h2>
+                  <span>DeepSeek 按服务商实测 Token 统计；Fun-ASR 单独按音频时长统计，不混入 Token。</span>
+                </div>
+                <button id="export-provider-costs-button" class="secondary-button" type="button">导出调用明细</button>
+              </div>
+              <div id="provider-cost-readiness" class="readiness-strip">正在检查成本统计状态。</div>
+              <div id="provider-cost-summary" class="metric-deck"></div>
+            </section>
+
+            <section class="visual-grid">
+              <article class="admin-card chart-card chart-card-wide">
+                <div class="chart-head">
+                  <div>
+                    <p class="section-kicker">DAILY TREND</p>
+                    <h2>每日 Token 趋势</h2>
+                  </div>
+                  <div class="chart-legend" aria-label="图例">
+                    <span><i class="legend-input"></i>输入</span>
+                    <span><i class="legend-output"></i>输出</span>
+                    <span><i class="legend-unclassified"></i>未拆分</span>
+                  </div>
+                </div>
+                <div id="token-trend-chart" class="chart-stage" aria-live="polite"></div>
+              </article>
+              <article class="admin-card chart-card">
+                <div class="chart-head">
+                  <div>
+                    <p class="section-kicker">TOKEN MIX</p>
+                    <h2>输入 / 输出构成</h2>
+                  </div>
+                </div>
+                <div id="token-composition-chart" class="chart-stage compact-chart" aria-live="polite"></div>
+              </article>
+            </section>
+
+            <section class="admin-card chart-card">
+              <div class="chart-head">
+                <div>
+                  <p class="section-kicker">PROJECT RANKING</p>
+                  <h2>项目用量分布</h2>
+                </div>
+                <span>点击项目可立即筛选下方调用明细。</span>
+              </div>
+              <div id="project-token-chart" class="project-token-chart" aria-live="polite"></div>
+            </section>
+
+            <section class="admin-card">
+              <form id="provider-cost-filter-form" class="filter-bar">
+                <label class="field">
+                  <span>开始日期</span>
+                  <input id="provider-cost-date-from-input" type="date" />
+                </label>
+                <label class="field">
+                  <span>结束日期</span>
+                  <input id="provider-cost-date-to-input" type="date" />
+                </label>
+                <label class="field">
+                  <span>服务商</span>
+                  <input id="provider-cost-provider-input" type="text" placeholder="全部" />
+                </label>
+                <label class="field">
+                  <span>模型</span>
+                  <input id="provider-cost-model-input" type="text" placeholder="全部" />
+                </label>
+                <details class="filter-more">
+                  <summary>精确筛选</summary>
+                  <div class="filter-more-grid">
+                    <label class="field">
+                      <span>项目</span>
+                      <select id="provider-cost-project-input"><option value="">全部项目</option></select>
+                    </label>
+                    <label class="field">
+                      <span>任务 ID</span>
+                      <input id="provider-cost-job-input" type="text" placeholder="可选" />
+                    </label>
+                  </div>
+                </details>
+                <button type="submit">应用筛选</button>
+              </form>
+              <p id="provider-cost-message" class="status-text" role="status"></p>
+            </section>
+
+            <section class="admin-card records-card">
+              <div class="section-head compact-head">
+                <div>
+                  <p class="section-kicker">CALL RECORDS</p>
+                  <h2>逐笔 AI 服务调用</h2>
+                </div>
+                <span>按任务折叠；展开后分别查看 Token、Fun-ASR 音频时长、目录价金额与耗时。</span>
+              </div>
+              <div id="provider-cost-table" class="empty-state">正在加载 AI 服务成本。</div>
+            </section>
+          </section>
+
+          <section class="workspace-view hidden" data-view-panel="catalog">
+            <section class="admin-card catalog-intro">
+              <div>
+                <p class="section-kicker">PRICE GOVERNANCE</p>
+                <h2>价格目录版本</h2>
+                <p>只追加生效版本。已经形成的成本事件保留当时价格快照，不会被后来调价改写。</p>
+              </div>
+              <button id="refresh-price-catalog-button" class="secondary-button" type="button">刷新目录</button>
+            </section>
+
+            <section class="admin-card">
+              <form id="price-catalog-form" class="stack-form catalog-form">
+                <div class="grid-two">
+                  <label class="field"><span>Provider</span><input id="price-provider-input" type="text" required /></label>
+                  <label class="field"><span>模型</span><input id="price-model-input" type="text" required /></label>
+                </div>
+                <div class="grid-two">
+                  <label class="field"><span>操作</span><input id="price-operation-input" type="text" required /></label>
+                  <label class="field"><span>计量项</span><input id="price-meter-input" type="text" required /></label>
+                </div>
+                <div class="grid-two">
+                  <label class="field"><span>生效时间</span><input id="price-effective-from-input" type="datetime-local" required /></label>
+                  <label class="field"><span>结束时间（可选）</span><input id="price-effective-to-input" type="datetime-local" /></label>
+                </div>
+                <div class="grid-two">
+                  <label class="field"><span>每计价份数量</span><input id="price-billing-unit-input" type="number" min="0.000001" step="any" value="1" required /></label>
+                  <label class="field"><span>目录单价（微单位）</span><input id="price-unit-microunits-input" type="number" min="0" step="1" required /></label>
+                </div>
+                <div class="grid-two">
+                  <label class="field"><span>币种</span><input id="price-currency-input" type="text" value="CNY" required /></label>
+                  <label class="field"><span>来源备注</span><input id="price-source-note-input" type="text" placeholder="官方文档与发布日期" /></label>
+                </div>
+                <div class="button-row">
+                  <button type="submit">新增价格版本</button>
+                </div>
+              </form>
+              <p id="price-catalog-message" class="status-text" role="status"></p>
+            </section>
+
+            <section class="admin-card">
+              <div id="price-catalog-list" class="empty-state">正在加载价格目录。</div>
+            </section>
+          </section>
+
+          <section class="workspace-view hidden knowledge-workspace" data-view-panel="knowledge">
+            <section class="admin-card knowledge-hero">
+              <div class="knowledge-hero-copy">
+                <div>
+                  <p class="section-kicker">CANONICAL KNOWLEDGE</p>
+                  <h2>古诗词文献库</h2>
+                  <p>互联网语料先作为候选入库；只有人工确认后的篇章，才会进入字幕自动纠错。</p>
+                </div>
+                <div class="knowledge-seal" aria-hidden="true"><span>审</span><small>可追溯</small></div>
+              </div>
+              <div id="knowledge-metrics" class="knowledge-metrics"></div>
+              <p id="knowledge-summary-message" class="status-text" role="status"></p>
+            </section>
+
+            <section class="knowledge-visual-grid">
+              <article class="admin-card knowledge-chart-card">
+                <div class="chart-head">
+                  <div>
+                    <p class="section-kicker">REVIEW FLOW</p>
+                    <h2>审核构成</h2>
+                  </div>
+                  <span>确认后才参与自动纠错</span>
+                </div>
+                <div id="knowledge-review-chart" class="knowledge-review-chart"></div>
+              </article>
+              <article class="admin-card knowledge-chart-card dynasty-card">
+                <div class="chart-head">
+                  <div>
+                    <p class="section-kicker">DYNASTY INDEX</p>
+                    <h2>朝代分布</h2>
+                  </div>
+                  <span>按当前候选总量</span>
+                </div>
+                <div id="knowledge-dynasty-chart" class="knowledge-dynasty-chart"></div>
+              </article>
+            </section>
+
+            <section class="admin-card knowledge-source-card">
+              <div class="section-head compact-head">
+                <div>
+                  <p class="section-kicker">SOURCE LEDGER</p>
+                  <h2>导入来源与版本</h2>
+                </div>
+                <span>每批语料记录仓库、提交版本、文件摘要与导入结果。</span>
+              </div>
+              <div id="knowledge-import-batches" class="knowledge-import-batches"></div>
+            </section>
+
+            <section class="knowledge-library-grid">
+              <section class="admin-card knowledge-library-card">
+                <div class="section-head compact-head">
+                  <div>
+                    <p class="section-kicker">REVIEW QUEUE</p>
+                    <h2>篇章审核</h2>
+                  </div>
+                  <span id="knowledge-selection-count">未选择篇章</span>
+                </div>
+                <form id="knowledge-filter-form" class="knowledge-filter-bar">
+                  <label class="field knowledge-search-field">
+                    <span>搜索题目、作者或正文</span>
+                    <input id="knowledge-search-input" type="search" placeholder="例如：李白 / 明月" />
+                  </label>
+                  <label class="field">
+                    <span>审核状态</span>
+                    <select id="knowledge-status-filter">
+                      <option value="">全部状态</option>
+                      <option value="pending" selected>待审核</option>
+                      <option value="approved">已确认</option>
+                      <option value="rejected">已驳回</option>
+                    </select>
+                  </label>
+                  <label class="field">
+                    <span>朝代</span>
+                    <select id="knowledge-dynasty-filter"><option value="">全部朝代</option></select>
+                  </label>
+                  <label class="field">
+                    <span>体裁</span>
+                    <select id="knowledge-genre-filter"><option value="">全部体裁</option></select>
+                  </label>
+                  <button type="submit">筛选</button>
+                </form>
+                <div class="knowledge-bulk-bar">
+                  <div class="knowledge-selection-tools">
+                    <label class="knowledge-select-page">
+                      <input id="knowledge-select-page" type="checkbox" />
+                      <span>全选本页</span>
+                    </label>
+                    <button id="knowledge-select-all" class="selection-link" type="button">全选当前筛选结果</button>
+                    <button id="knowledge-clear-selection" class="selection-link muted" type="button">清空选择</button>
+                  </div>
+                  <div class="button-row tight-row">
+                    <button id="knowledge-bulk-reject" class="secondary-button" type="button">批量驳回</button>
+                    <button id="knowledge-bulk-approve" type="button">批量确认</button>
+                  </div>
+                </div>
+                <div id="knowledge-results" class="knowledge-results"></div>
+                <div id="knowledge-pagination" class="knowledge-pagination"></div>
+              </section>
+
+              <aside id="knowledge-detail" class="admin-card knowledge-detail-card">
+                <div class="knowledge-detail-empty">
+                  <span class="detail-glyph">文</span>
+                  <strong>选择一篇作品</strong>
+                  <p>这里会显示逐句正文、来源版本、文件指纹和异文，确认前不参与自动纠错。</p>
+                </div>
+              </aside>
+            </section>
+          </section>
+
+          <section class="workspace-view hidden" data-view-panel="operations">
+            <section class="admin-card">
+              <div class="section-head">
+                <div>
+                  <p class="section-kicker">VOICE IDENTITY REVIEW</p>
+                  <h2>声音身份待审核</h2>
+                  <span>对比新上传样本与候选身份已有样本，仅管理员可确认或释放误匹配。</span>
+                </div>
+                <button id="refresh-identity-reviews-button" class="secondary-button" type="button">刷新审核</button>
+              </div>
+              <p id="identity-review-message" class="status-text" role="status"></p>
+              <audio id="identity-review-player" class="identity-review-player" aria-label="声音身份审核播放器" controls preload="none"></audio>
+              <div id="identity-review-list" class="empty-state">正在加载声音身份待审核项。</div>
+            </section>
+
+            <section class="admin-card">
+              <div class="section-head">
+                <div>
+                  <p class="section-kicker">CLIENT DELIVERY</p>
+                  <h2>客户端更新发布</h2>
+                  <span>上传更新包与签名，服务端登记为对应通道的最新版本。</span>
+                </div>
+                <button id="refresh-client-updates-button" class="secondary-button" type="button">刷新版本</button>
+              </div>
+              <form id="client-update-form" class="stack-form">
+                <div class="grid-two">
+                  <label class="field"><span>通道</span><select id="client-update-channel-input"><option value="stable-macos12">stable-macos12</option><option value="stable-macos11">stable-macos11</option><option value="alpha-macos12">alpha-macos12</option></select></label>
+                  <label class="field"><span>版本号</span><input id="client-update-version-input" type="text" placeholder="2.0.0" /></label>
+                </div>
+                <div class="grid-two">
+                  <label class="field"><span>目标平台</span><input id="client-update-target-input" type="text" value="darwin" /></label>
+                  <label class="field"><span>架构</span><select id="client-update-arch-input"><option value="universal">universal</option><option value="aarch64">aarch64</option><option value="x86_64">x86_64</option></select></label>
+                </div>
+                <label class="field"><span>更新包</span><input id="client-update-package-file-input" type="file" accept=".gz,application/gzip" /></label>
+                <label class="field"><span>签名文件</span><input id="client-update-signature-file-input" type="file" accept=".sig,text/plain" /></label>
+                <label class="field"><span>更新说明</span><textarea id="client-update-notes-input" rows="3"></textarea></label>
+                <div class="button-row"><button id="save-client-update-button" type="submit">上传并登记版本</button></div>
+              </form>
+              <details class="filter-more manual-release">
+                <summary>高级手动登记</summary>
+                <form id="client-update-manual-form" class="stack-form">
+                  <label class="field"><span>服务器包路径</span><input id="client-update-package-input" type="text" placeholder="packages/stable-macos12/Speaker.app.tar.gz" /></label>
+                  <label class="field"><span>签名</span><textarea id="client-update-signature-input" rows="3"></textarea></label>
+                  <div class="button-row"><button type="submit">手动登记当前版本</button></div>
+                </form>
+              </details>
+              <p id="client-update-message" class="status-text" role="status"></p>
+              <div id="client-update-list" class="empty-state">正在加载客户端发布版本。</div>
+            </section>
+
+            <section class="admin-card danger-zone">
+              <div class="section-head">
+                <div>
+                  <p class="section-kicker">STORAGE GUARD</p>
+                  <h2>存储清理</h2>
+                  <span>只清理临时文件和已结束任务的本地源媒体副本；任务、声纹、词库与校对资产不会删除。</span>
+                </div>
+                <div class="button-row">
+                  <button id="preview-storage-cleanup-button" class="secondary-button" type="button">扫描文件</button>
+                  <button id="run-storage-cleanup-button" class="danger-button" type="button">执行清理</button>
+                </div>
+              </div>
+              <p id="storage-cleanup-message" class="status-text" role="status"></p>
+              <div id="storage-cleanup-result" class="empty-state">尚未扫描存储清理项。</div>
+            </section>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <script src="/admin-assets/admin.js?v=20260901-identity-review-fix1"></script>
+  </body>
+</html>

@@ -1,0 +1,24 @@
+[package]
+name = "speaker_client"
+version = "2.0.19"
+description = "Speaker 正式桌面客户端"
+authors = ["silence"]
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/SilenceXi123/Speaker-OpenSource"
+
+[lib]
+name = "speaker_client_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+base64 = "0.22"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri = { version = "2", features = ["protocol-asset"] }
+tauri-plugin-dialog = "2"
+tauri-plugin-opener = "2"
+tauri-plugin-updater = "2"

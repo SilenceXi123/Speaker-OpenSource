@@ -1,0 +1,23 @@
+{
+  "name": "speaker-client",
+  "version": "2.0.19",
+  "private": true,
+  "scripts": {
+    "release:sync": "node scripts/release-metadata.mjs sync",
+    "release:check": "node scripts/release-metadata.mjs check",
+    "desktop:web": "npm run release:check && node scripts/build-frontend.mjs && rm -rf desktop-web && mkdir -p desktop-web && cp index.html app.js ui.js xml-repair.js styles.css workbench.css README.md desktop-bridge.js desktop-web/ && cp -R ui-icons desktop-web/",
+    "dist:sync:mac": "rm -rf dist/'Speaker客户端.app' dist/'Speaker客户端.zip' && mkdir -p dist && cp -R \"src-tauri/target/universal-apple-darwin/release/bundle/macos/Speaker 客户端.app\" \"dist/Speaker客户端.app\" && ditto -c -k --sequesterRsrc --keepParent \"dist/Speaker客户端.app\" \"dist/Speaker客户端.zip\"",
+    "tauri:dev": "npm run desktop:web && tauri dev",
+    "tauri:build": "npm run desktop:web && CI=false tauri build",
+    "tauri:build:universal": "npm run desktop:web && CI=false RUSTUP_DIST_SERVER=https://rsproxy.cn RUSTUP_UPDATE_ROOT=https://rsproxy.cn/rustup tauri build --target universal-apple-darwin && npm run dist:sync:mac"
+  },
+  "devDependencies": {
+    "@tabler/icons": "^3.35.0",
+    "@tauri-apps/cli": "^2.10.1"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SilenceXi123/Speaker-OpenSource.git"
+  }
+}

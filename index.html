@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Speaker 客户端</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./workbench.css" />
+  </head>
+  <body data-mode="simple" data-active-step="upload" data-rail-open="false">
+    <div id="app" class="app-shell">
+      <header class="app-topbar">
+        <div class="topbar-context">
+          <div class="topbar-brand" aria-label="Speaker 2.0">
+            <strong>Speaker <span>2.0</span></strong>
+          </div>
+          <span id="topbar-build-identity" class="topbar-build-identity">
+            <span id="topbar-version-badge" class="topbar-version-badge"></span>
+            <span id="topbar-build-channel" class="topbar-build-channel"></span>
+          </span>
+          <span class="topbar-divider" aria-hidden="true"></span>
+          <button class="topbar-project" data-toggle-rail type="button" aria-expanded="false" aria-controls="project-rail">
+            <span id="topbar-project-name">未选择项目</span>
+            <img src="./ui-icons/chevron-down.svg" alt="" aria-hidden="true" />
+          </button>
+        </div>
+        <div class="topbar-actions">
+          <button class="topbar-status" data-step="history" type="button">
+            <span id="topbar-task-state" class="topbar-status-dot" aria-hidden="true"></span>
+            <span>后台任务</span>
+            <strong id="topbar-task-count">0</strong>
+          </button>
+          <button class="topbar-tools" data-toggle-rail type="button" aria-expanded="false" aria-controls="project-rail">
+            <img src="./ui-icons/apps.svg" alt="" aria-hidden="true" />
+            <span>所有功能</span>
+          </button>
+        </div>
+      </header>
+      <aside id="project-rail" class="project-rail" aria-label="项目与功能菜单" aria-hidden="true" inert></aside>
+      <button class="rail-scrim" data-close-rail type="button" aria-label="关闭项目与功能菜单" hidden></button>
+      <main class="main-stage">
+        <nav id="task-timeline" class="task-timeline" aria-label="任务步骤"></nav>
+        <header class="stage-header">
+          <div>
+            <p id="stage-eyebrow" class="eyebrow">任务时间线</p>
+            <h1 id="stage-title">上传转写</h1>
+            <p id="stage-description" class="stage-description"></p>
+          </div>
+          <div id="user-facing-status" class="status-strip"></div>
+        </header>
+        <section id="simple-workspace" class="simple-workspace"></section>
+        <section id="pro-workspace" class="pro-workspace" hidden></section>
+      </main>
+      <div id="sync-progress-overlay" class="sync-overlay" hidden aria-live="polite">
+        <div class="sync-card">
+          <div class="sync-spinner" aria-hidden="true"></div>
+          <div>
+            <h2 id="sync-progress-title">正在处理</h2>
+            <p id="sync-progress-message"></p>
+            <p id="sync-progress-attempts"></p>
+          </div>
+        </div>
+      </div>
+      <div id="download-toast" class="download-toast" hidden aria-live="polite"></div>
+      <div id="client-update-notice" class="client-update-notice" hidden aria-live="polite"></div>
+    </div>
+    <script src="./desktop-bridge.js"></script>
+    <script src="./xml-repair.js"></script>
+    <script src="./ui.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
